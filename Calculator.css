@@ -1,0 +1,39 @@
+#body {
+    margin:0px;
+    overflow:hidden;
+}
+#equation {
+    background-color:white;;
+}
+#parentBodyDiv {
+    background-image:linear-gradient(to right, #e66465, #9198e5);
+    height:100%;
+    position:absolute;
+    width:100%;
+}
+#bodyDiv {
+    align-items:center;
+    display:grid;
+    gap:0px;
+    grid-template-columns: repeat(4, 200px);
+    grid-template-rows: minmax(120px, auto) repeat(5, 100px);    
+    justify-content: center;
+    left:35%;
+    position:relative;
+    top:20%;
+    width:30%;
+
+}
+
+
+
+
+/* Individual Elements Start Below */
+.buttons {
+    text-align:center;
+}
+#button0 {    
+    background-image: linear-gradient(to right, purple, rgb(66, 0, 66));
+    color:lightseagreen;
+}
+
