@@ -1,28 +1,30 @@
 #body {
     margin:0px;
     overflow:hidden;
+    width: max-content;
+    height:max-content;
+    justify-content: center;
 }
 #equation {
     background-color:white;;
 }
 #parentBodyDiv {
     background-image:linear-gradient(to right, #e66465, #9198e5);
-    height:100%;
     position:absolute;
     width:100%;
+    height:100%;
 }
 #bodyDiv {
     align-items:center;
     display:grid;
     gap:0px;
-    grid-template-columns: repeat(4, 200px);
-    grid-template-rows: minmax(120px, auto) repeat(5, 100px);    
+    grid-template-columns: repeat(4, 50%);
+    grid-template-rows: minmax(120px, auto) repeat(5, 90px);    
     justify-content: center;
     left:35%;
-    position:relative;
-    top:20%;
+    position:absolute;
+    top:10%;
     width:30%;
-
 }
 
 
@@ -31,9 +33,29 @@
 /* Individual Elements Start Below */
 .buttons {
     text-align:center;
+    height:100%;
 }
-#button0 {    
+#button0 {
+    grid-column: 1 / -1;
+    font-size: xx-large;
+    background-color: black;
+    color:white;
+}
+#button1 {    
+    grid-column: 1 / 3;
     background-image: linear-gradient(to right, purple, rgb(66, 0, 66));
     color:lightseagreen;
 }
+#button1:hover {
+    background-image: linear-gradient(to right, rgb(91, 4, 191), rgb(66, 0, 66));
+}
+#button18 {
+    grid-column: 3 / 5;
+    background-image: linear-gradient(to right, purple, rgb(66, 0, 66));
+    color:lightseagreen;
+}
+#button18:hover {
+    background-image: linear-gradient(to right, rgb(91, 4, 191), rgb(66, 0, 66));
+}
+
 
