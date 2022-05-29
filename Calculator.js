@@ -23,6 +23,7 @@ function buttonsOnClick() {
             })
     }    
 }
+
 function totalAmount(bc) {
     let t=bc.innerText;
     let tParse=parseFloat(t);
@@ -38,6 +39,7 @@ function totalAmount(bc) {
                 || t.toString().includes('-')) {
             equalsOperator()}
             bodyDiv.firstChild.innerHTML+=t.toString();
+            positionZeroSymbolCheck();
         } else  if (t === '=') {
                 equalsOperator();
             }   else if (t === 'AC') {
@@ -47,13 +49,8 @@ function totalAmount(bc) {
                     let numToSlice= stringToSlice.toString()
                         bodyDiv.firstChild.innerHTML=numToSlice.slice(0,-1);
                     } else if (t === ".") {
-                            if (bodyDiv.firstChild.innerHTML.indexOf('.') >= 1) {
-                                let replaceDecimal=bodyDiv.firstChild.innerHTML.replace('.', '');
-                                    bodyDiv.firstChild.innerHTML=replaceDecimal;
-                                    bodyDiv.firstChild.innerHTML+=t.toString();
-                            } else bodyDiv.firstChild.innerHTML+=t.toString();
-                    }
-        else bodyDiv.firstChild.innerHTML+= tParse.toString();
+                        decimalCheck(bc);
+                    } else bodyDiv.firstChild.innerHTML+= tParse.toString();
 }
 
 function equalsOperator() {
@@ -69,37 +66,40 @@ function equalsOperator() {
         let a=equationLocation[additionCharacter];
         let s=equationLocation[subtractionCharacter];
 
-//Checks if equationLocation contains > 1 "*", "/", "+", "-"... and stops equation calculation process to remove duplicates.
+//Checks if equationLocation contains > 1 "*", "/", "+", "-"... and stops equation calculation process and remove duplicates.
         let multiplyAmountInEquation= (equationLocation.match(/[*]/g) || []).length
         let divisionAmountInEquation= (equationLocation.match(/[/]/g) || []).length
         let additionAmountInEquation= (equationLocation.match(/[+]/g) || []).length
         let subtractionAmountInEquation= (equationLocation.match(/[-]/g) || []).length
 
     //Checks for duplicates of "*".
-        if (multiplyAmountInEquation >=1 && multiplyCharacter == equationLocation.length-1) {
+        if (multiplyAmountInEquation >=1 
+            && multiplyCharacter == equationLocation.length-1) {
             bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-1);
             console.log("Invalid Multiplication symbol in equation. Removed last instance!")
         } else
 
     //Checks for duplicates of "/".
-        if (divisionAmountInEquation >=1 && divisionCharacter == equationLocation.length-1) {
+        if (divisionAmountInEquation >=1 
+            && divisionCharacter == equationLocation.length-1 
+            && equationLocation.charAt(equationLocation.length-1) != '-') {
             bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-1);
             console.log("Invalid Division symbol in equation. Removed last instance!")
         } else
 
     //Checks for duplicates of "+".
-        if (additionAmountInEquation >=1 && additionCharacter == equationLocation.length-1) {
+        if (additionAmountInEquation >=1 
+            && additionCharacter == equationLocation.length-1) {
             bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-1);
             console.log("Invalid Addition symbol in equation. Removed last instance!")
         } else
 
-    //Checks for duplicates of "-". Allows position [0] & [-1] to be "-" while not allowing two "-" in a row.
-        if (subtractionAmountInEquation >=1 && subtractionCharacter == equationLocation.length-1) {
+    //Checks for duplicates of "-". Allows position [0] & [-1] to be "-" while not allowing two "-" adjacent.
+        if (subtractionAmountInEquation >=1 && equationLocation.charAt(equationLocation.length-1) == '-') {
             bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-1);
             console.log("Invalid Subtraction symbol in equation. Removed last instance!")
-        } else
+        } else     
 
-//Sectioned off for insert
     if (multiplyCharacter > 0) {
         console.log(bodyDiv.firstChild.innerHTML + ' ' + '=' + ' ')
         let replaceM=bodyDiv.firstChild.innerHTML.replace('*', '');
@@ -114,7 +114,6 @@ function equalsOperator() {
                 bodyDiv.firstChild.innerHTML=leftP*rightP;
                     console.log(bodyDiv.firstChild.innerHTML);
     }   else
-    
     if (divisionCharacter > 0) {
         console.log(bodyDiv.firstChild.innerHTML + ' ' + '=' + ' ')
         let replaceD=bodyDiv.firstChild.innerHTML.replace('/', '');
@@ -145,33 +144,34 @@ function equalsOperator() {
                     console.log(bodyDiv.firstChild.innerHTML);
     }   else
 
-
-
-//===========================================================================================================================
-//Var subtractionMatch cannot be higher or lower in scope!
-    var subtractionMatch=(equationLocation.match(/-/g) || []).length;
-    var elString=bodyDiv.firstChild.innerHTML.toString();
+//Var subtractionMatch scope level detection of '-' in equation output string.
+var subtractionMatch=(equationLocation.match(/-/g) || []).length;
     if (subtractionAmountInEquation > 1 && subtractionMatch == 2) {
-        let log1=equationLocation.indexOf('-');
-        let rS1=elString.replace('-', '');
-        bodyDiv.firstChild.innerHTML=rS1;
-        let log2=equationLocation.indexOf('-');console.log(equationLocation)
-//rS1 & rS2 show indexOf in position 0. This is main problem <<<<<<<< also equationLocation and equationFinalized should be same.
-        let rS2=elString.replace('-', '');
-        bodyDiv.firstChild.innerHTML=rS2
+//elString is CURRENT output string. allows for log1 to store value of FIRST '-' symbol in equation
+var elString=bodyDiv.firstChild.innerHTML.toString();
+        let rS1=elString.replace('-', "");
+            bodyDiv.firstChild.innerHTML=rS1;
+//elString is CURRENT output string. log2 stores value of SECOND '-' symbol in equation
+var elString=bodyDiv.firstChild.innerHTML.toString();
+        let log2=elString.indexOf('-');
+        let rS2=elString.replace('-', "");
+        bodyDiv.firstChild.innerHTML=rS2;
 
         let equationFinalized=bodyDiv.firstChild.innerHTML;
-        console.log(equationFinalized)
         let equationFinalString=equationFinalized.toString();
             let left=equationFinalString.substring(0,log2)
             let right=equationFinalString.substring(log2,equationLocation.length);
                 let leftP= parseFloat(left);
                 let rightP= parseFloat(right);
-                    bodyDiv.firstChild.innerHTML=-leftP-rightP;    
-                        //console.log(bodyDiv.firstChild.innerHTML);
+                    bodyDiv.firstChild.innerHTML=-leftP-rightP;
+                    console.log('-' + left + ' ' + '-' + ' ' + right + ' ' + '=' + ' ');
+                    console.log(bodyDiv.firstChild.innerHTML);
+                    var includesSubString= bodyDiv.firstChild.innerHTML.toString()
     } else
-
-        if (subtractionCharacter > 0) {
+var includesSubString= bodyDiv.firstChild.innerHTML.toString()
+var includesSubtraction= includesSubString.includes('-');
+var subtractionCharacterNow=equationLocation.indexOf('-');
+        if (subtractionCharacterNow > 0 && includesSubtraction == true) {
             console.log(bodyDiv.firstChild.innerHTML + ' ' + '=' + ' ')
 
             let replaceS=bodyDiv.firstChild.innerHTML.replace('-', '');
@@ -187,3 +187,28 @@ function equalsOperator() {
                         console.log(bodyDiv.firstChild.innerHTML);
     }   
 }
+
+//check for '*' or '/' in position [0] of output string, and removes position [0] if true.
+function positionZeroSymbolCheck() {
+    let locString=bodyDiv.firstChild.innerHTML.toString();
+    if (locString == '*' || locString == '/' || locString == '+') {
+        bodyDiv.firstChild.innerHTML= "";
+    }
+}
+
+/*  METHOD TO FIX ERROR #1 & #2   :
+    split string if there is '*', '/', '+', '-' in the equation. Split around the symblos location.
+    check both split strings for decimals, and if more then one decimal in either, remove last instance 
+    in that split string.   */
+function decimalCheck(bc) {
+    let t=bc.innerText;
+    let inputString=bodyDiv.firstChild.innerHTML.toString();
+    let inputDecimalAmount=(inputString.match(/[.]/g) || []).length
+        if (bodyDiv.firstChild.innerHTML.indexOf('.') >= 99
+        || inputDecimalAmount > 1) {
+            let replaceDecimal=bodyDiv.firstChild.innerHTML.replace('.', '');
+                bodyDiv.firstChild.innerHTML=replaceDecimal;
+                bodyDiv.firstChild.innerHTML+=t.toString();
+        } else bodyDiv.firstChild.innerHTML+=t.toString();
+}
+
