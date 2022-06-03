@@ -66,48 +66,80 @@ function equalsOperator(bc) {
     let additionCharacter=equationLocation.indexOf('+');
     let subtractionCharacter=equationLocation.indexOf('-');
 
-        let m=equationLocation[multiplyCharacter];
-        let d=equationLocation[divisionCharacter];
-        let a=equationLocation[additionCharacter];
-        let s=equationLocation[subtractionCharacter];
-
 //Checks if equationLocation contains > 1 "*", "/", "+", "-"... and stops equation calculation process to remove duplicates.
-        let multiplyAmountInEquation= (equationLocation.match(/[*]/g) || []).length
-        let divisionAmountInEquation= (equationLocation.match(/[/]/g) || []).length
-        let additionAmountInEquation= (equationLocation.match(/[+]/g) || []).length
-        let subtractionAmountInEquation= (equationLocation.match(/[-]/g) || []).length
+    let multiplyAmountInEquation= (equationLocation.match(/[*]/g) || []).length
+    let divisionAmountInEquation= (equationLocation.match(/[/]/g) || []).length
+    let additionAmountInEquation= (equationLocation.match(/[+]/g) || []).length
+    let subtractionAmountInEquation= (equationLocation.match(/[-]/g) || []).length
+
+    // Var eqLocLastPosition is last character in string bodydiv.firstChild.innerHTML.
+    var eqLocLastPosition= equationLocation[equationLocation.length-1];
+    
+    //Checks for decimal before a '*' '/' '+' or '-' symbol, and removes the decimal and calls function equalsOperator(bc) to re-run.
+        if (eqLocLastPosition == '.' 
+            && (bc.innerHTML == '*' || bc.innerHTML == '/' || bc.innerHTML == '+' || bc.innerHTML == '-')) {
+                bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-1);
+                equalsOperator(bc);
+            }
+            
+
+    // Below fixes error where multiple '/' could be places after a '*' or in the second half of a equation.
+        if ((divisionAmountInEquation >=1 && eqLocLastPosition == '*' && bc.innerHTML == '/')
+            ) {
+            bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-1);
+            bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-2);
+            console.log("Invalid Division symbol in equation. Removed last instances!")
+        } else
+    // Below fixes error where multiple '/' could be places after a '+' or in the second half of a equation.
+        if ((divisionAmountInEquation >=1 && eqLocLastPosition == '+' && bc.innerHTML == '/')
+            ) {
+            bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-1);
+            bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-2);
+            console.log("Invalid Division symbol in equation. Removed last instances!")
+        } else
+
+    // Below fixes error where multiple '/' could be places after a '-' or in the second half of a equation.
+        if ((divisionAmountInEquation >=1 && eqLocLastPosition == '-' && bc.innerHTML == '/')
+            || divisionAmountInEquation >= 1 && subtractionAmountInEquation >= 1 
+            && eqLocLastPosition != '/' && bc.innerHTML == '*' && (parseInt(eqLocLastPosition) <= 9) == false
+            ) {
+            bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-1);
+            bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-2);
+            console.log("Invalid Division symbol in equation. Removed last instances!")
+        } else
 
     //Checks for duplicates of "*".
-        if (multiplyAmountInEquation >=1 
-            && multiplyCharacter == equationLocation.length-1) {
+        if (multiplyAmountInEquation >=1 && multiplyCharacter == equationLocation.length-1 
+            && eqLocLastPosition != '-'
+            ) {
             bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-1);
             console.log("Invalid Multiplication symbol in equation. Removed last instance!")
         } else
 
     //Checks for duplicates of "/".
-        if (divisionAmountInEquation >=1 
-            && divisionCharacter == equationLocation.length-1 
-            && equationLocation.charAt(equationLocation.length) != '-'
-            && bc.innerHTML != '-') {
+        if (divisionAmountInEquation >=1 && divisionCharacter == equationLocation.length-1 
+            && equationLocation.charAt(equationLocation.length) != '-' && bc.innerHTML != '-'
+            ) {
             bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-1);
             console.log("Invalid Division symbol in equation. Removed last instance!")
         } else
 
     //Checks for duplicates of "+".
-        if (additionAmountInEquation >=1 
-            && additionCharacter == equationLocation.length-1) {
+        if (additionAmountInEquation >=1 && additionCharacter == equationLocation.length-1
+            ) {
             bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-1);
             console.log("Invalid Addition symbol in equation. Removed last instance!")
         } else
-
+        
     //Checks for duplicates of "-". Allows position [0] & [-1] to be "-" while not allowing two "-" adjacent.
-        if (subtractionAmountInEquation >=1 
-            && equationLocation.charAt(equationLocation.length-1) == '-') {
+        if (subtractionAmountInEquation >=1 && equationLocation.charAt(equationLocation.length-1) == '-'
+        ) {
             bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-1);
             console.log("Invalid Subtraction symbol in equation. Removed last instance!")
         } else     
 
-    if (multiplyCharacter > 0) {
+    if (multiplyCharacter >= 1 && (parseInt(eqLocLastPosition) <= 9)
+    ) {
         console.log(bodyDiv.firstChild.innerHTML + ' ' + '=' + ' ')
         let replaceM=bodyDiv.firstChild.innerHTML.replace('*', '');
         bodyDiv.firstChild.innerHTML= replaceM
@@ -121,11 +153,15 @@ function equalsOperator(bc) {
                     console.log(bodyDiv.firstChild.innerHTML);
     }   else
     //Var bcNow is accessed in: if(divisionCharacter), and: if(additionCharacter), as well as if(subtractionAmountInEquation).
-    var eqLocLastPosition= equationLocation[equationLocation.length-1];console.log()
-    var bcNow= bc.innerText; console.log(eqLocLastPosition, ' ', '  ', 'multi',multiplyAmountInEquation, 'divi', divisionAmountInEquation, 'addition', additionAmountInEquation, 'subtraction', subtractionAmountInEquation)
-    if ((divisionCharacter > 0 && bcNow == '=')
-        //|| (equationLocation[0] == '-' && subtractionAmountInEquation >= 2 && (parseInt(eqLocLastPosition) != NaN))
-        //|| (parseInt(eqLocLastPosition) != NaN && divisionAmountInEquation >= 1 && subtractionAmountInEquation >= 1)
+    var bcNow= bc.innerText;
+    var eqLocLastPosition= equationLocation[equationLocation.length-1];
+    //(parseInt(eqLocLastPosition) <= 9)   checks for numbers after division symbol, if true.. continues.
+    if ((divisionCharacter >= 1 && bcNow == '=' && (parseInt(eqLocLastPosition) <= 9))
+        || (equationLocation[0] == '-' && subtractionAmountInEquation >= 2 && divisionAmountInEquation >= 1 &&(parseInt(eqLocLastPosition) <= 9))
+        || (bcNow == '*' && divisionAmountInEquation >= 1 && (parseInt(eqLocLastPosition) <= 9))
+        || (bcNow == '/' && divisionAmountInEquation >= 1 && (parseInt(eqLocLastPosition) <= 9))
+        || (bcNow == '+' && divisionAmountInEquation >= 1 && (parseInt(eqLocLastPosition) <= 9))
+        || (bcNow == '-' && divisionAmountInEquation >= 1 && (parseInt(eqLocLastPosition) <= 9))
         ) {
         console.log(bodyDiv.firstChild.innerHTML + ' ' + '=' + ' ')
         let replaceD=bodyDiv.firstChild.innerHTML.replace('/', '');
@@ -209,18 +245,14 @@ var subtractionCharacterNow=equationLocation.indexOf('-');
 
 /* 
 Fixed: 
-        1.) Negative numbers could not be subtracted from negative numbers
-        2.) After second number of equation (even if first number was negative) infinite negative symbols could be placed.
-            if first was not a negative number, then multiple negative inputs after first number would causes output of NaN.
-        3.) error inside subtraction detection scope where variables were not accurate to the output value, they represented ,
-            at the time they were used.
-        4.) Sybols ( '*' '/' ) could be in position 0 of an equation, causing output NaN.
-
-
+        1.) Numbers could not be divided by negative numbers.
+        2.) Two Negative symbols (infront and behind a set of numbers) would = NaN when any other symbol were entered.
+        3.) Couldn't multiply a number by a negative number.
+        4.) Symbols '*', '/', '+', or '-' could be placed after a decimal allowing multiple of these symbols to be in a equation,
+            often resulting in output of NaN
 BugReport:
         1.) Only 1 decimal can be put into an equation. (second decimal removes first decimal);
-        2.) numbers cannot be divided by a negative number.
-        3.) sometimes equations with a decimal number will be rounded up by a fraction of its value. 
+        2.) sometimes equations with a decimal number will be rounded up by a fraction of its value. 
             Example: 1.02 * 1 = 1.020,000,000,000,000,002
 
 */
