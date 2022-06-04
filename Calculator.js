@@ -25,6 +25,7 @@ function buttonsOnClick() {
 }
 
 function totalAmount(bc) {
+    let equationNow= bodyDiv.firstChild.innerHTML
     let t=bc.innerText;
     let tParse=parseFloat(t);
         if(Number.isNaN(tParse) 
@@ -49,11 +50,28 @@ function totalAmount(bc) {
                     let numToSlice= stringToSlice.toString()
                         bodyDiv.firstChild.innerHTML=numToSlice.slice(0,-1);
                     } else if (t === ".") {
-                            if (bodyDiv.firstChild.innerHTML.indexOf('.') >= 1) {
-                                let replaceDecimal=bodyDiv.firstChild.innerHTML.replace('.', '');
-                                    bodyDiv.firstChild.innerHTML=replaceDecimal;
-                                    bodyDiv.firstChild.innerHTML+=t.toString();
-                            } else bodyDiv.firstChild.innerHTML+=t.toString();
+    //Below checks output String, BEFORE equation symbols, for decimals, and removes last Decimal if more then one is in the equation.
+                        if (   (equationNow.indexOf('*') == -1 && equationNow.indexOf('/') == -1 && equationNow.indexOf('+') == -1 && equationNow.indexOf('-') == -1 && ((equationNow.match(/[.]/g) || []).length) >= 1)
+                            || (equationNow.indexOf('*') != -1 && equationNow.indexOf('*') < equationNow.indexOf('.') && (((equationNow.match(/[.]/g) || []).length) >= 0))
+                            || (equationNow.indexOf('/') != -1 && equationNow.indexOf('/') < equationNow.indexOf('.') && (((equationNow.match(/[.]/g) || []).length) >= 0))
+                            || (equationNow.indexOf('+') != -1 && equationNow.indexOf('+') < equationNow.indexOf('.') && (((equationNow.match(/[.]/g) || []).length) >= 0))
+                            || (equationNow.indexOf('-') != -1 && equationNow.indexOf('-') < equationNow.indexOf('.') && (((equationNow.match(/[.]/g) || []).length) >= 0))
+                            ) {
+                            let replaceDecimal=bodyDiv.firstChild.innerHTML.replace('.', '');
+                                bodyDiv.firstChild.innerHTML=replaceDecimal;
+                                bodyDiv.firstChild.innerHTML+=t.toString();
+                        } else     
+    //Below checks output String, AFTER equation symbols, for decimals, and removes last Decimal if more then one is in the equation.)
+                        var firstDecimal=equationNow.indexOf('.');
+                        var secondDecimal=equationNow.indexOf('.',parseInt(firstDecimal+1));
+                            if ((secondDecimal >= 0 && equationNow.indexOf('*') < secondDecimal && bc.innerText == '.')
+                             || (secondDecimal >= 0 && equationNow.indexOf('/') < secondDecimal && bc.innerText == '.')
+                             || (secondDecimal >= 0 && equationNow.indexOf('+') < secondDecimal && bc.innerText == '.')
+                             || (secondDecimal >= 0 && equationNow.indexOf('-') < secondDecimal && bc.innerText == '.')
+                                ) {
+                                    equationNow.slice(secondDecimal); console.log("Invalid decimal position, removed last instance!");
+                        } else bodyDiv.firstChild.innerHTML+=t.toString();
+                            
                     }
         else bodyDiv.firstChild.innerHTML+= tParse.toString();
 }
@@ -74,28 +92,30 @@ function equalsOperator(bc) {
 
     // Var eqLocLastPosition is last character in string bodydiv.firstChild.innerHTML.
     var eqLocLastPosition= equationLocation[equationLocation.length-1];
-    
+
     //Checks for decimal before a '*' '/' '+' or '-' symbol, and removes the decimal and calls function equalsOperator(bc) to re-run.
         if (eqLocLastPosition == '.' 
-            && (bc.innerHTML == '*' || bc.innerHTML == '/' || bc.innerHTML == '+' || bc.innerHTML == '-')) {
+            && (bc.innerHTML == '*' || bc.innerHTML == '/' || bc.innerHTML == '+' || bc.innerHTML == '-')
+            ) {
                 bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-1);
+                console.log("Invalid Decimal symbol, removed prior instance")
                 equalsOperator(bc);
-            }
+        } else
             
-
     // Below fixes error where multiple '/' could be places after a '*' or in the second half of a equation.
         if ((divisionAmountInEquation >=1 && eqLocLastPosition == '*' && bc.innerHTML == '/')
             ) {
             bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-1);
             bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-2);
-            console.log("Invalid Division symbol in equation. Removed last instances!")
+            console.log("Invalid Multiplication & Division symbols, removed last instances!")
         } else
     // Below fixes error where multiple '/' could be places after a '+' or in the second half of a equation.
-        if ((divisionAmountInEquation >=1 && eqLocLastPosition == '+' && bc.innerHTML == '/')
+        if ((divisionAmountInEquation >=1 && eqLocLastPosition == '+' && bc.innerHTML == '/'
+            || divisionAmountInEquation >=1 ** additionAmountInEquation >=1 && eqLocLastPosition == '+' && bc.innerHTML == '*') 
             ) {
             bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-1);
             bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-2);
-            console.log("Invalid Division symbol in equation. Removed last instances!")
+            console.log("Invalid Addition & Division symbols, removed last instances!")
         } else
 
     // Below fixes error where multiple '/' could be places after a '-' or in the second half of a equation.
@@ -105,15 +125,42 @@ function equalsOperator(bc) {
             ) {
             bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-1);
             bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-2);
-            console.log("Invalid Division symbol in equation. Removed last instances!")
+            console.log("Invalid Subtraction & Division symbols, removed last instances!")
+        } else
+
+    // Below fixes error where multiple '*' could be places after a '-' or in the second half of a equation.
+        if ((multiplyAmountInEquation >=1 && eqLocLastPosition == '-' && bc.innerHTML == '*')
+            || multiplyAmountInEquation >= 1 && subtractionAmountInEquation >= 1 
+            && eqLocLastPosition != '*' && bc.innerHTML == '/' && (parseInt(eqLocLastPosition) <= 9) == false
+            ) {
+            bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-1);
+            bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-2);
+            console.log("Invalid Subtraction & Multiplication symbols, removed last instances!")
+        } else
+
+    // Below fixes error where multiple '*' could be places after a '+' or in the second half of a equation.
+            if ((multiplyAmountInEquation >=1 && eqLocLastPosition == '+' && bc.innerHTML == '*')
+            || multiplyAmountInEquation >= 1 && additionAmountInEquation >= 1 
+            && eqLocLastPosition != '*' && bc.innerHTML == '/' && (parseInt(eqLocLastPosition) <= 9) == false
+            ) {
+            bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-1);
+            bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-2);
+            console.log("Addition & Multiplication symbols, removed last instances!")
+        } else
+
+    // Below fixes error where '*' could be places after a '/', which creates output of NaN.
+        if ((divisionAmountInEquation >=1 && eqLocLastPosition == '/' && bc.innerHTML == '*')
+            ) {
+            bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-1);
+            console.log("Invalid Division symbol, removed last instances!")
         } else
 
     //Checks for duplicates of "*".
         if (multiplyAmountInEquation >=1 && multiplyCharacter == equationLocation.length-1 
-            && eqLocLastPosition != '-'
+            && bc.innerText != '-'
             ) {
             bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-1);
-            console.log("Invalid Multiplication symbol in equation. Removed last instance!")
+            console.log("Invalid Multiplication symbol, removed last instance!")
         } else
 
     //Checks for duplicates of "/".
@@ -121,21 +168,21 @@ function equalsOperator(bc) {
             && equationLocation.charAt(equationLocation.length) != '-' && bc.innerHTML != '-'
             ) {
             bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-1);
-            console.log("Invalid Division symbol in equation. Removed last instance!")
+            console.log("Invalid Division symbol, removed last instance!")
         } else
 
     //Checks for duplicates of "+".
         if (additionAmountInEquation >=1 && additionCharacter == equationLocation.length-1
             ) {
             bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-1);
-            console.log("Invalid Addition symbol in equation. Removed last instance!")
+            console.log("Invalid Addition symbol, removed last instance!")
         } else
         
     //Checks for duplicates of "-". Allows position [0] & [-1] to be "-" while not allowing two "-" adjacent.
         if (subtractionAmountInEquation >=1 && equationLocation.charAt(equationLocation.length-1) == '-'
-        ) {
+            ) {
             bodyDiv.firstChild.innerHTML= equationLocation.slice(0,-1);
-            console.log("Invalid Subtraction symbol in equation. Removed last instance!")
+            console.log("Invalid Subtraction symbol, removed last instance!")
         } else     
 
     if (multiplyCharacter >= 1 && (parseInt(eqLocLastPosition) <= 9)
@@ -219,7 +266,7 @@ var includesSubString= bodyDiv.firstChild.innerHTML.toString()
 var includesSubtraction= includesSubString.includes('-');
 var subtractionCharacterNow=equationLocation.indexOf('-');
         if (subtractionCharacterNow > 0 && includesSubtraction == true
-            && divisionAmountInEquation == 0) {
+            && divisionAmountInEquation == 0 && multiplyAmountInEquation == 0) {
             console.log(bodyDiv.firstChild.innerHTML + ' ' + '=' + ' ')
             let replaceS=bodyDiv.firstChild.innerHTML.replace('-', '');
             bodyDiv.firstChild.innerHTML= replaceS
@@ -239,20 +286,22 @@ var subtractionCharacterNow=equationLocation.indexOf('-');
         let locString=bodyDiv.firstChild.innerHTML.toString();
         if (locString == '*' || locString == '/' || locString == '+') {
             bodyDiv.firstChild.innerHTML= "";
+            console.log("invalid equation format, removed all inputs!")
         }
     }
 
 
 /* 
 Fixed: 
-        1.) Numbers could not be divided by negative numbers.
-        2.) Two Negative symbols (infront and behind a set of numbers) would = NaN when any other symbol were entered.
-        3.) Couldn't multiply a number by a negative number.
-        4.) Symbols '*', '/', '+', or '-' could be placed after a decimal allowing multiple of these symbols to be in a equation,
-            often resulting in output of NaN
+1.) Multiple decimals could be placed in first or second half equation.
+2.) '*' after '/' would remove the number character as well as the '*' and '/' symbols.
+3.) '*' after '-' would allow input of '/*' resuling in NaN.
+4.) Equation symbols would not ignore decimals, and would remove their instances when the symbols were ment to be removed.
+5.) If last Character in equation was a decimal, and the equals button was pressed, equation wouldnt be calculated and the decimal character in last position would remain.
+
 BugReport:
-        1.) Only 1 decimal can be put into an equation. (second decimal removes first decimal);
-        2.) sometimes equations with a decimal number will be rounded up by a fraction of its value. 
-            Example: 1.02 * 1 = 1.020,000,000,000,000,002
+1.) sometimes equations with a decimal number will be rounded up by a fraction of its value. Example: 1.02 * 1 = 1.020,000,000,000,000,002
+2.) Cannot multiply a number by a negative number (CAN PUT && bc.innerHTML != '-') but allows / to be placed after *.
+3.) if a decimal was in first half of a equation, the second decimal, in the second half, would not be removed when a third decimal was input. The third decimal was instead removed.
 
 */
