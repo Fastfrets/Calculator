@@ -58,4 +58,12 @@
     background-image: linear-gradient(to right, rgb(91, 4, 191), rgb(66, 0, 66));
 }
 
-
+/* User Alerts Start Below*/
+.popupText {
+    position:relative;
+    text-align: center;
+    background-color: rgb(218, 93, 93);
+    opacity: 80%;
+    color: black;
+    top:2px;
+}
