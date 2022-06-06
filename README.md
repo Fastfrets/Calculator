@@ -1,7 +1,7 @@
 # Project
 Build a simple calculator without researching how to do so.
 
-# Requirments:
+# Requirements:
 
   -Make a basic calculator that can store memory of all past calculations, which the user can then use to revert to a past calculated integer.                           
   
