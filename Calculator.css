@@ -5,9 +5,6 @@
     height:max-content;
     justify-content: center;
 }
-#equation {
-    background-color:white;;
-}
 #parentBodyDiv {
     background-image:linear-gradient(to right, #e66465, #9198e5);
     position:absolute;
@@ -19,12 +16,13 @@
     display:grid;
     gap:0px;
     grid-template-columns: repeat(4, 50%);
-    grid-template-rows: minmax(120px, auto) repeat(5, 90px);    
+    grid-template-rows: minmax(20%, auto) repeat(5, 15%);    
     justify-content: center;
-    left:35%;
+    left:24%;
     position:absolute;
-    top:10%;
+    top:12%;
     width:30%;
+    height:80%;
 }
 
 
@@ -34,12 +32,16 @@
 .buttons {
     text-align:center;
     height:100%;
+    font-size: 4vmax;
 }
 #button0 {
     grid-column: 1 / -1;
-    font-size: xx-large;
+    font-style: oblique;
+    font-size: 5vmax;
     background-color: black;
+    overflow:scroll;
     color:white;
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 #button1 {    
     grid-column: 1 / 3;
@@ -48,6 +50,9 @@
 }
 #button1:hover {
     background-image: linear-gradient(to right, rgb(91, 4, 191), rgb(66, 0, 66));
+}
+#button2 {
+    font-size: 3vmax;
 }
 #button18 {
     grid-column: 3 / 5;
@@ -65,5 +70,49 @@
     background-color: rgb(218, 93, 93);
     opacity: 80%;
     color: black;
-    top:2px;
+    font-size:1.8vmax;
+    height:1.8vmax;
+}
+
+/* Calculation History Starts Below*/
+#calculationHistoryDiv {
+    position:absolute;
+    width: 22%;
+    height:79.5%;
+    top:12%;
+    left:69%;
+    overflow:scroll;
+    border:2px solid black;
+    border-left:0px solid black;
+    background-image: linear-gradient(to bottom, lightblue, rgba(128, 0, 128, 0.3));
+}
+
+#calHistoryHeader {
+    position:relative;
+    text-align:center;
+    font-size:3vmax;
+    height:24.5%;
+    border-bottom:2px solid black;
+    background-image:linear-gradient(to bottom, purple,rgba(173, 216, 230, 0.2));
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.historyEquation {
+    color:black;
+    position: relative;
+    text-align: center;
+    background-image: linear-gradient(to left, rgb(104, 104, 109), rgb(226, 223, 223));
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-width: 100%;
+    max-width: fit-content;
+}
+
+.historyAnswer {
+    color: rgb(2, 80, 28);
+    position: relative;
+    background-image: linear-gradient(to right, rgb(104, 104, 109), rgb(226, 223, 223));
+    text-align: center;
+    min-width: 100%;
+    max-width: fit-content;
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
