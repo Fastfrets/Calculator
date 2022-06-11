@@ -34,7 +34,8 @@ function totalAmount(bc) {
     var firstDecimal=equationNow.indexOf('.');
     var secondDecimal=equationNow.indexOf('.',parseInt(firstDecimal+1));
     var firstNegative=equationNow.indexOf('-');
-    var secondNegative=equationNow.indexOf('-',parseInt(firstNegative+1));
+
+    var afterFirstdecimal= equationNow.substring(firstDecimal+1,equationNow.length);
     let t=bc.innerText;
     let tParse=parseFloat(t);
         if(Number.isNaN(tParse) 
@@ -50,7 +51,7 @@ function totalAmount(bc) {
             equalsOperator(bc)}
             bodyDiv.firstChild.innerHTML+=t.toString();
             positionZeroSymbolCheck();
-        } else  if (t === '=') {
+        } else if (t === '=') {
                 equalsOperator(bc);
             }   else if (t === 'AC') {
                     bodyDiv.firstChild.innerHTML="";
@@ -58,28 +59,36 @@ function totalAmount(bc) {
                     let stringToSlice= bodyDiv.firstChild.innerHTML
                     let numToSlice= stringToSlice.toString()
                         bodyDiv.firstChild.innerHTML=numToSlice.slice(0,-1);
-                    } else if (t === ".") {
-    //Below checks output String, BEFORE equation symbols, for decimals, and removes last Decimal if more then one is in the equation.
-                        if (   (equationNow.indexOf('*') == -1 && equationNow.indexOf('/') == -1 && equationNow.indexOf('+') == -1 && equationNow.indexOf('-') == -1 && ((equationNow.match(/[.]/g) || []).length) >= 1)
-                            || (equationNow.indexOf('*') != -1 && equationNow.indexOf('*') < equationNow.indexOf('.') && (((equationNow.match(/[.]/g) || []).length) >= 0))
-                            || (equationNow.indexOf('/') != -1 && equationNow.indexOf('/') < equationNow.indexOf('.') && (((equationNow.match(/[.]/g) || []).length) >= 0))
-                            || (equationNow.indexOf('+') != -1 && equationNow.indexOf('+') < equationNow.indexOf('.') && (((equationNow.match(/[.]/g) || []).length) >= 0))
-                            || (equationNow.indexOf('-') != -1 && equationNow.indexOf('-') < equationNow.indexOf('.') && (((equationNow.match(/[.]/g) || []).length) == 0))
+
+                } else if (t === ".") {
+//Below checks output String, BEFORE equation symbols, for decimals, and removes first Decimal if more then one is in the equation.
+                                        /* if after the first decimal includes *, /, +, or -, dont remove any decimal.*/
+                        if  (  (equationNow.indexOf('*') == -1 && equationNow.indexOf('/') == -1 && equationNow.indexOf('+') == -1 && equationNow.indexOf('-') == -1 && ((equationNow.match(/[.]/g) || []).length) >= 1)
+                            || ((((equationNow.match(/[.]/g) || []).length) >= 0) && (afterFirstdecimal.includes('*') != true && afterFirstdecimal.includes('/') != true && afterFirstdecimal.includes('+') != true && afterFirstdecimal.includes('-') != true))
                             ) {
                             let replaceDecimal=bodyDiv.firstChild.innerHTML.replace('.', '');
                                 bodyDiv.firstChild.innerHTML=replaceDecimal;
                                 bodyDiv.firstChild.innerHTML+=t.toString();
-                                    alertInfo="Invalid decimal position, removed last instance!"
+                                    alertInfo="Invalid decimal position, removed first instance!"
                                     createPopupText(alertInfo);
-                        } else     
-    //Below checks output String, AFTER equation symbols, for decimals, and removes last Decimal if more then one is in the equation.)
-                            if ((secondDecimal >= 0 && equationNow.indexOf('*') < secondDecimal && bc.innerText == '.')
-                             || (secondDecimal >= 0 && equationNow.indexOf('/') < secondDecimal && bc.innerText == '.')
-                             || (secondDecimal >= 0 && equationNow.indexOf('+') < secondDecimal && bc.innerText == '.')
-                             || (secondDecimal >= 1 && equationNow.indexOf('-') < secondDecimal && bc.innerText == '.')
-                                ) {
-                                    alertInfo="Invalid decimal position, removed last instance!";
-                                    createPopupText(alertInfo);
+                    } else 
+//Below checks output String, AFTER equation symbols, for decimals, and does not add another decimal to output if more then one is in the equation.)
+                        if  ( (equationNow.indexOf('-') != -1 && equationNow[firstDecimal-1] == '-' && secondDecimal != -1 
+                            && (equationNow.includes('/') 
+                            || equationNow.includes('*')
+                            || equationNow.includes('+')
+                            || (equationNow.includes('-') && equationNow[0] != '-'))
+                            || (secondDecimal >= 2 && equationNow.indexOf('*') < secondDecimal && bc.innerText == '.')
+                            || (secondDecimal >= 2 && equationNow.indexOf('/') < secondDecimal && bc.innerText == '.')
+                            || (secondDecimal >= 2 && equationNow.indexOf('+') < secondDecimal && bc.innerText == '.')
+                            || (secondDecimal >= 2 && equationNow.indexOf('-') < secondDecimal && bc.innerText == '.'))
+                            ) {
+                                let replaceLocation=bodyDiv.firstChild.innerHTML
+                                let replaceLocString=replaceLocation.toString();
+                                replaceLocation=replaceLocString.slice(0,secondDecimal);
+                                alertInfo="Invalid decimal position, no decimal placed!";
+                                createPopupText(alertInfo);
+
                         } else bodyDiv.firstChild.innerHTML+=t.toString();
                             
                     }
@@ -219,7 +228,7 @@ function equalsOperator(bc) {
             let rightP= parseFloat(right);
                 bodyDiv.firstChild.innerHTML=leftP*rightP;
                     answer=(bodyDiv.firstChild.innerHTML);
-                    calHistory(equation,answer)
+                    answerRounded(equation,answer);
     }   else
     //Var bcNow is accessed in: if(divisionCharacter), and: if(additionCharacter), as well as if(subtractionAmountInEquation).
     var bcNow= bc.innerText;
@@ -243,7 +252,7 @@ function equalsOperator(bc) {
             let rightP= parseFloat(right);
                 bodyDiv.firstChild.innerHTML=leftP/rightP;
                     answer=(bodyDiv.firstChild.innerHTML);
-                    calHistory(equation,answer)
+                    answerRounded(equation,answer);
     }   else
 
     if (additionCharacter > 0 && bcNow != undefined && equationLocation.indexOf('+') != equationLocation.length-1) {
@@ -258,13 +267,15 @@ function equalsOperator(bc) {
             let rightP= parseFloat(right);
                 bodyDiv.firstChild.innerHTML=leftP+rightP;    
                     answer=(bodyDiv.firstChild.innerHTML);
-                    calHistory(equation,answer)
+                    answerRounded(equation,answer);
     }   else
 //Var subtractionMatch scope level detection of '-' in equation output string.
 var subtractionMatch=(equationLocation.match(/-/g) || []).length;
     if (subtractionAmountInEquation > 1 && subtractionMatch == 2 
         && equationLocation[equationLocation.length-1] != '-'
-        && divisionAmountInEquation == 0) {
+        && equationLocation[equationLocation.length-1] != '.'
+        && divisionAmountInEquation == 0
+        ) {
 //elString is CURRENT output string. allows for log1 to store value of FIRST '-' symbol in equation
 var elString=bodyDiv.firstChild.innerHTML.toString();
         let rS1=elString.replace('-', "");
@@ -285,13 +296,17 @@ var elString=bodyDiv.firstChild.innerHTML.toString();
                     equation=('-' + left + ' ' + '-' + ' ' + right);
                     answer=(bodyDiv.firstChild.innerHTML);
                     var includesSubString= bodyDiv.firstChild.innerHTML.toString();
-                    calHistory(equation,answer)
+                    answerRounded(equation,answer);
     } else
 var includesSubString= bodyDiv.firstChild.innerHTML.toString()
 var includesSubtraction= includesSubString.includes('-');
 var subtractionCharacterNow=equationLocation.indexOf('-');
-        if (subtractionCharacterNow > 0 && includesSubtraction == true
-            && divisionAmountInEquation == 0 && multiplyAmountInEquation == 0) {
+        if (subtractionCharacterNow > 0 
+            && includesSubtraction == true
+            && divisionAmountInEquation == 0 
+            && multiplyAmountInEquation == 0
+            && equationLocation[equationLocation.length-1] != '.'
+            ) {
             equation=(bodyDiv.firstChild.innerHTML)
             let replaceS=bodyDiv.firstChild.innerHTML.replace('-', '');
             bodyDiv.firstChild.innerHTML= replaceS
@@ -303,8 +318,7 @@ var subtractionCharacterNow=equationLocation.indexOf('-');
                 let rightP= parseFloat(right);
                     bodyDiv.firstChild.innerHTML=leftP-rightP;    
                         answer=(bodyDiv.firstChild.innerHTML);
-                        calHistory(equation,answer)
-                        answerRounded(answer);
+                        answerRounded(equation,answer);
     }   
 }
 
@@ -316,14 +330,24 @@ var subtractionCharacterNow=equationLocation.indexOf('-');
             createPopupText("Invalid equation format, removed all inputs!");
         }
     }
+
 //checks if answer has a numeric 12th position after the decimal, and rounds beyond that up.
-function answerRounded(answer) {
+function answerRounded(equation,answer) {
     let decimal=answer.indexOf('.');
-    if ((answer.length -decimal) >= 11 && answer[12+decimal] >5 ) {
-        let roundedUp=answer.slice(0,11+decimal);
-        bodyDiv.firstChild.innerHTML=roundedUp+.000000000001;
-        console.log(answer+"" + .000000000001)
-    }
+    let parseDecimal=parseInt(decimal);
+    let roundedUp=answer.substring(parseDecimal+1,13 + parseDecimal);
+    let lastToString= roundedUp.toString()
+    let length= lastToString.length
+    let last=lastToString[length-1]
+    let answerAfterDecimal= answer.substring(decimal,answer.length-decimal);
+    let answerRoundedUp= answer.substring(0,14+parseDecimal);
+
+        if ((answerAfterDecimal.length) >= 12 && last >= 5 ) {
+            let finalAnswer= (answerRoundedUp);console.log("Answer was not rounded up. Instead was cut off at the 12th place after decimal")
+            bodyDiv.firstChild.innerHTML=finalAnswer.toString();
+        } else bodyDiv.firstChild.innerHTML= answerRoundedUp;
+        answer=answerRoundedUp;
+        calHistory(equation,answer);
 }
 
 //==================================================================================================
@@ -381,13 +405,6 @@ function popupTextTimeout() {
 
 
 /* 
-Fixed:
-
 BugReport:
-1.) sometimes equations with a decimal number will be rounded up by a fraction of its value. Example: 1.02 * 1 = 1.020,000,000,000,000,002
-2.) if a decimal was in first half of a equation, the second decimal, in the second half, would not be removed when a third decimal was input. The third decimal was instead removed.
-3.) If last Character in equation is a decimal, and the equals button was pressed, the equation wouldnt be calculated and the decimal character in last position would remain.
-4.) 66e+28 CANNOT be calculated any further, as calculator does not understand string 'e'.
-5.) negative decimal numbers (less then 1) minus negative decimal numbers (less then 1) causes the first decimal to be removed from the equation.
-6.) -.8-. can be summed (equals NaN)
+            None
 */
