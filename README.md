@@ -15,8 +15,6 @@ Build a simple calculator without researching how to do so.
   -My calculator uses a complex method of string, to integer, and back to string. This allows me to extract equation symbols and decimals with ease, split up both parts     of a calculation for precise logging, and to have more strict rules/usecases for user input equation formatting. 
 
 # OutCome:
-
-  (needs photo/gif)
-  (External link to calculator on server)
-  Start Date: 5-24-2022
-  End Date: 6-??-2022
+<img src="Images/Calculator capture.png" width= "800" >
+<br>
+<img src="Images/Calculator (action) capture.png" width= "800" >
