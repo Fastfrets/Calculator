@@ -6,6 +6,8 @@ Build a simple calculator without researching how to do so.
   -Make a basic calculator that can store memory of all past calculations, which the user can then use to revert to a past calculated integer.                           
   
   -Have Passive user alerts when a incorrectly formatted equation was input.
+  
+  -Any incorrectly input symbols or decimals will be removed from the equation, thus allowing only legitimate mathamatical equations.
 
 
 # Methodology:
